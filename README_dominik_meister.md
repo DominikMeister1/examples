@@ -15,6 +15,8 @@ I also testet the function with the models from exercise 2. The outputs were not
 
 Here are the two sample texts: 
 
+There is a problem with the formatation. The "unk" and "eos" are only displayed in the edit mode. 
+
 greedy :
 up the corridor , <eos> <unk> <unk> , and the <unk> of the <unk> <unk> of the <unk> <unk> ,
 <unk> <unk> <eos> <unk> , <unk> <unk> , <unk> <unk> , <unk> <unk> , <unk> <unk> , <eos> <unk> <unk>
