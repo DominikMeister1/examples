@@ -14,6 +14,8 @@ import data
 parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 Language Model')
 
 # Model parameters.
+parser.add_argument('--strategy', type=str, choices=['sampling', 'greedy'], default='sampling',
+                    help='choose sampling strategy')
 parser.add_argument('--data', type=str, default='./data/wikitext-2',
                     help='location of the data corpus')
 parser.add_argument('--checkpoint', type=str, default='./model.pt',
@@ -61,13 +63,36 @@ with open(args.outf, 'w') as outf:
             if is_transformer_model:
                 output = model(input, False)
                 word_weights = output[-1].squeeze().div(args.temperature).exp().cpu()
-                word_idx = torch.multinomial(word_weights, 1)[0]
+                #If the sampling strategy was chosen
+                if args.strategy == 'sampling': 
+                    word_idx = torch.multinomial(word_weights, 1)[0]
+                    print(word_weights.argmax())
+                #If the greedy strategy was chosen
+                else: 
+                    #take the the index of the maximum weight
+                    word_idx = word_weights.argmax()
                 word_tensor = torch.Tensor([[word_idx]]).long().to(device)
                 input = torch.cat([input, word_tensor], 0)
+                #To test if the word chosen from greedy is the same like the word from the sampling
+                #if torch.multinomial(word_weights, 1)[0] == word_weights.argmax():
+                    #print("greedy Word == sampling word")
+
             else:
                 output, hidden = model(input, hidden)
                 word_weights = output.squeeze().div(args.temperature).exp().cpu()
-                word_idx = torch.multinomial(word_weights, 1)[0]
+                #If the sampling strategy was chosen
+                if args.strategy == 'sampling': 
+                    word_idx = torch.multinomial(word_weights, 1)[0]
+                    #To check if sampling takes the word with the highest probaility
+                    #if word_weights.argmax() != word_idx:
+                        #print("Sampling doesnt take the word with highest probability")
+                    #else:
+                     #   print("Sampling takes the word with highest probability")
+                
+                #If the greedy strategy was chosen
+                else: 
+                    #take the the index of the maximum weight
+                    word_idx = word_weights.argmax()
                 input.fill_(word_idx)
 
             word = corpus.dictionary.idx2word[word_idx]
@@ -76,3 +101,4 @@ with open(args.outf, 'w') as outf:
 
             if i % args.log_interval == 0:
                 print('| Generated {}/{} words'.format(i, args.words))
+
